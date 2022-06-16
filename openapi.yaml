@@ -1,0 +1,5101 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+##
+# Copyright 2022-present by Software Networks Area, i2CAT Foundation.
+# All rights reserved.
+#
+# This file is part of the Slice Manager.
+#
+# Contributors:
+#   - Adriana Fernández Fernández (adriana.fernandez@i2cat.net)
+##
+
+openapi: "3.0.0"
+
+info:
+  title: Slice Manager API
+  version: "1.0"
+  description: This API provides interaction between the 5GZORRO platform and the Slice Manager.
+
+servers:
+  - url: /api/v1.0
+
+tags:
+  - name: User
+  - name: Edge/Cloud Compute Resource
+  - name: Edge/Cloud Network Resource
+  - name: Radio Access Network Resource
+  - name: Resource Telemetry
+  - name: Edge/Cloud Compute Chunk
+  - name: Edge/Cloud Network Chunk
+  - name: Radio Access Network Chunk
+  - name: Network Slice (collection of chunks)
+  - name: Radio Service
+  - name: Generic Network Slice Template (GST)
+  - name: Network Slice Type (NEST)
+  - name: Network Slice Instance (NEST-based)
+  - name: Network Service
+  - name: Application Instance
+
+paths:
+
+  /user:
+    get:
+      tags:
+        - User
+      summary: Get users information
+      description: >-
+        User retrieval method
+      operationId: getUsers
+      parameters:
+      - in: query
+        name: name
+        schema:
+          type: string
+      - in: query
+        name: email
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetUsers"
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    post:
+      tags:
+        - User
+      summary: Register a new user
+      description: >-
+        User registration method
+      operationId: postUser
+      requestBody:
+        description: The body of the request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserInput"
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostUser"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /user/{user_id}:
+    get:
+      tags:
+        - User
+      summary: Get individual user information
+      description: >-
+        User retrieval method
+      operationId: getUser
+      parameters:
+      - in: path
+        name: user_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetUser"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags:
+        - User
+      summary: Delete an user
+      description: >-
+        User deletion method
+      operationId: deleteUser
+      parameters:
+      - in: path
+        name: user_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Request succeeded
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+
+###################################################################
+
+  /compute:
+    get:
+      tags:
+        - Edge/Cloud Compute Resource
+      summary: Get computes information
+      description: >-
+        Compute retrieval method
+      operationId: getComputes
+      parameters:
+      - in: query
+        name: user_id
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetComputes"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+    post:
+      tags:
+        - Edge/Cloud Compute Resource
+      summary: Register a new compute resource
+      description: >-
+        Compute registration method
+      operationId: postCompute
+      requestBody:
+        description: The body of the request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ComputeInput"
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostCompute"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        '504':
+          $ref: '#/components/responses/GatewayTimeout'
+
+  /compute/{compute_id}:
+    get:
+      tags:
+        - Edge/Cloud Compute Resource
+      summary: Get individual compute information
+      description: >-
+        Compute retrieval method
+      operationId: getCompute
+      parameters:
+      - in: path
+        name: compute_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostCompute"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+    delete:
+      tags:
+        - Edge/Cloud Compute Resource
+      summary: Delete a compute
+      description: >-
+        Compute deletion method
+      operationId: deleteCompute
+      parameters:
+      - in: path
+        name: compute_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Request succeeded
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+
+###################################################################
+
+  /physical_network:
+    get:
+      tags:
+        - Edge/Cloud Network Resource
+      summary: Get edge/cloud networks information
+      description: >-
+        Edge/Cloud Network retrieval method
+      operationId: getPhysicalNetworks
+      parameters:
+      - in: query
+        name: user_id
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetPhysicalNetworks"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+    post:
+      tags:
+        - Edge/Cloud Network Resource
+      summary: Register a new edge/cloud network resource
+      description: >-
+        Edge/Cloud Network registration method
+      operationId: postPhysicalNetwork
+      requestBody:
+        description: The body of the request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PhysicalNetworkInput"
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostPhysicalNetwork"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        '504':
+          $ref: '#/components/responses/GatewayTimeout'          
+
+  /physical_network/{physical_network_id}:
+    get:
+      tags:
+        - Edge/Cloud Network Resource
+      summary: Get individual edge/cloud network information
+      description: >-
+        Edge/Cloud Network retrieval method
+      operationId: getPhysicalNetwork
+      parameters:
+        - in: path
+          name: physical_network_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostPhysicalNetwork"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+    delete:
+      tags:
+        - Edge/Cloud Network Resource
+      summary: Delete a edge/cloud network
+      description: >-
+        Edge/Cloud Network deletion method
+      operationId: deletePhysicalNetwork
+      parameters:
+      - in: path
+        name: physical_network_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Request succeeded
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+
+###################################################################
+
+  /ran_infrastructure:
+    get:
+      tags:
+        - Radio Access Network Resource
+      summary: Get RAN infrastructures information
+      description: >-
+        RAN Infrastructure retrieval method
+      operationId: getRANInfrastructures
+      parameters:
+      - in: query
+        name: user_id
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetRANInfrastructures"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+    post:
+      tags:
+        - Radio Access Network Resource
+      summary: Register a new RAN infrastructure resource
+      description: >-
+        RAN Infrastructure registration method
+      operationId: postRANInfrastructure
+      requestBody:
+        description: The body of the request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RANInfrastructureInput"
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostRANInfrastructure"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /ran_infrastructure/{ran_infrastructure_id}:
+    get:
+      tags:
+        - Radio Access Network Resource
+      summary: Get individual RAN infrastructure information
+      description: >-
+        RAN Infrastructure retrieval method
+      operationId: getRANInfrastructure
+      parameters:
+        - in: path
+          name: ran_infrastructure_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostRANInfrastructure"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+    delete:
+      tags:
+        - Radio Access Network Resource
+      summary: Delete a RAN infrastructure
+      description: >-
+        RAN Infrastructure deletion method
+      operationId: deleteRANInfrastructure
+      parameters:
+      - in: path
+        name: ran_infrastructure_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Request succeeded
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+
+  /ran_infrastructure/{ran_infrastructure_id}/box:
+    get:
+      tags:
+        - Radio Access Network Resource
+      summary: Get RAN boxes information
+      description: >-
+        RAN boxes retrieval method
+      operationId: getRANboxes
+      parameters:
+        - in: path
+          name: ran_infrastructure_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetRANInfraBoxes"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  /ran_infrastructure/{ran_infrastructure_id}/box/{box_id}:
+    put:
+      tags:
+        - Radio Access Network Resource
+      summary: Set cellular box config
+      description: >-
+        Cellular Box Config
+      operationId: PutBoxConfig
+      parameters:
+      - in: path
+        name: ran_infrastructure_id
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: box_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: The body of the request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PutBoxConfigInput"
+      responses:
+        '204':
+          description: Request succeeded
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  /ran_infrastructure/{ran_infrastructure_id}/box/{box_id}/rf_port:
+    get:
+      tags:
+        - Radio Access Network Resource
+      summary: Get RF ports information
+      description: >-
+        RF ports retrieval method
+      operationId: getRFports
+      parameters:
+        - in: path
+          name: ran_infrastructure_id
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: box_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetRANInfraBoxRFPorts"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  /ran_infrastructure/{ran_infrastructure_id}/box/{box_id}/rf_port/{rf_port_id}:
+    put:
+      tags:
+        - Radio Access Network Resource
+      summary: Set RF port config
+      description: >-
+        RF Port Config
+      operationId: PutRFPortConfig
+      parameters:
+      - in: path
+        name: ran_infrastructure_id
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: box_id
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: rf_port_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: The body of the request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PutRFPortConfigInput"
+      responses:
+        '204':
+          description: Request succeeded
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  /ran_infrastructure/{ran_infrastructure_id}/configured_ran_topology:
+    get:
+      tags:
+        - Radio Access Network Resource
+      summary: Get RAN infrastructures configured radio interfaces
+      description: >-
+        RAN Infrastructure configured radio interfaces retrieval method
+      operationId: getConfiguredRadioPhys
+      parameters:
+        - in: path
+          name: ran_infrastructure_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetRANInfrastructureTopo"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  /ran_infrastructure/{ran_infrastructure_id}/ran_topology:
+    get:
+      tags:
+        - Radio Access Network Resource
+      summary: Get individual RAN infrastructure topology information
+      description: >-
+        RAN Infrastructure topology retrieval method
+      operationId: getRANTopology
+      parameters:
+        - in: path
+          name: ran_infrastructure_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetRANInfrastructureTopo"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  /ran_infrastructure/{ran_infrastructure_id}/ran_topology/{box_id}/cell:
+    post:
+      tags:
+        - Radio Access Network Resource
+      summary: Creates a new cell
+      description: >-
+        Cell creation method
+      operationId: postBoxCell
+      parameters:
+      - in: path
+        name: ran_infrastructure_id
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: box_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: The body of the request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BoxCellInput"
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostBoxCell"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /ran_infrastructure/{ran_infrastructure_id}/ran_topology/cell/{cell_id}:
+    put:
+      tags:
+        - Radio Access Network Resource
+      summary: Set cell config
+      description: >-
+        Cell config
+      operationId: PutBoxCellConfig
+      parameters:
+      - in: path
+        name: ran_infrastructure_id
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: cell_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: The body of the request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PutBoxCellConfigInput"
+      responses:
+        '204':
+          description: Request succeeded
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+    delete:
+      tags:
+        - Radio Access Network Resource
+      summary: Delete a cell
+      description: >-
+        Cell deletion method
+      operationId: deleteCell
+      parameters:
+      - in: path
+        name: ran_infrastructure_id
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: cell_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Request succeeded
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+
+  /ran_infrastructure/{ran_infrastructure_id}/ran_topology/cell/{cell_id}/nsa_relationship/{nsa_cell_id}:
+    put:
+      tags:
+        - Radio Access Network Resource
+      summary: Set cell relationship
+      description: >-
+        Cell relationship config
+      operationId: PutBoxCellRelationship
+      parameters:
+      - in: path
+        name: ran_infrastructure_id
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: cell_id
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: nsa_cell_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Request succeeded
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+    delete:
+      tags:
+        - Radio Access Network Resource
+      summary: Delete a cell relationship
+      description: >-
+        Cell relationship deletion method
+      operationId: deleteCellRelationship
+      parameters:
+      - in: path
+        name: ran_infrastructure_id
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: cell_id
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: nsa_cell_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Request succeeded
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  /ran_infrastructure/{ran_infrastructure_id}/ran_topology/{interface_id}/wifi_config:
+    put:
+      tags:
+        - Radio Access Network Resource
+      summary: Set physical interface WiFi configuration
+      description: >-
+        Physical Interface WiFi configuration
+      operationId: putWirelessConfiguration
+      parameters:
+      - in: path
+        name: ran_infrastructure_id
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: interface_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: The body of the request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PutWifiConfigurationInput"
+      responses:
+        '204':
+          description: Request succeeded
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /ran_infrastructure/{ran_infrastructure_id}/ran_topology/{interface_id}/lte_config:
+    put:
+      tags:
+        - Radio Access Network Resource
+      summary: Set physical interface LTE configuration
+      description: >-
+        Physical Interface LTE configuration
+      operationId: putLTEConfiguration
+      parameters:
+      - in: path
+        name: ran_infrastructure_id
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: interface_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: The body of the request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PutLTEConfigurationInput"
+      responses:
+        '204':
+          description: Request succeeded
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /ran_infrastructure/{ran_infrastructure_id}/ran_topology/{interface_id}/type:
+    put:
+      tags:
+        - Radio Access Network Resource
+      summary: Set physical interface type
+      description: >-
+        Physical Interface Type
+      operationId: PutInterfaceType
+      parameters:
+      - in: path
+        name: ran_infrastructure_id
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: interface_id
+        required: true
+        schema:
+          type: string
+      - in: query
+        name: type
+        required: true
+        schema:
+          type: string
+          enum: [WIRED, WIRED_ROOT, WIRED_ACCESS]
+      responses:
+        '204':
+          description: Request succeeded
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+###################################################################
+
+  /telemetry:
+    get:
+      tags:
+        - Resource Telemetry
+      summary: Get telemetry servers information
+      description: >-
+        Telemetry servers retrieval method
+      operationId: getTelemetryServers
+      parameters:
+      - in: query
+        name: user_id
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetTelemetryServers"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+    post:
+      tags:
+        - Resource Telemetry
+      summary: Register a new telemetry server resource
+      description: >-
+        Telemetry server registration method
+      operationId: postTelemetryServer
+      requestBody:
+        description: The body of the request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TelemetryServerInput"
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostTelemetryServer"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /telemetry/{telemetry_server_id}:
+    get:
+      tags:
+        - Resource Telemetry
+      summary: Get individual telemetry server information
+      description: >-
+        Telemetry server retrieval method
+      operationId: getTelemetryServer
+      parameters:
+        - in: path
+          name: telemetry_server_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostTelemetryServer"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+    delete:
+      tags:
+        - Resource Telemetry
+      summary: Delete a telemetry server
+      description: >-
+        Telemetry server deletion method
+      operationId: deleteTelemetryServer
+      parameters:
+      - in: path
+        name: telemetry_server_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Request succeeded
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+
+  /telemetry/{telemetry_server_id}/target:
+    get:
+      tags:
+        - Resource Telemetry
+      summary: Get telemetry targets information
+      description: >-
+        Telemetry targets retrieval method
+      operationId: getTelemetryTargets
+      parameters:
+      - in: path
+        name: telemetry_server_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetTelemetryTargets"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+    post:
+      tags:
+        - Resource Telemetry
+      summary: Register a new telemetry target
+      description: >-
+        Telemetry target registration method
+      operationId: postTelemetryTarget
+      parameters:
+        - in: path
+          name: telemetry_server_id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The body of the request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TelemetryTargetInput"
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostTelemetryTarget"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /telemetry/{telemetry_server_id}/target/{target_uid}:
+    get:
+      tags:
+        - Resource Telemetry
+      summary: Get individual telemetry target information
+      description: >-
+        Telemetry target retrieval method
+      operationId: getTelemetryTarget
+      parameters:
+      - in: path
+        name: telemetry_server_id
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: target_uid
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PutTelemetryTargetInput"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+    put:
+      tags:
+        - Resource Telemetry
+      summary: Modify telemetry target information
+      description: >-
+        Telemetry target information modification
+      operationId: putTelemetryTarget
+      parameters:
+      - in: path
+        name: telemetry_server_id
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: target_uid
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: The body of the request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PutTelemetryTargetInput"
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PutTelemetryTargetInput"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+    delete:
+      tags:
+        - Resource Telemetry
+      summary: Delete a telemetry target
+      description: >-
+        Telemetry target deletion method
+      operationId: deleteTelemetryTarget
+      parameters:
+      - in: path
+        name: telemetry_server_id
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: target_uid
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Request succeeded
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+
+###################################################################
+
+  /compute_chunk:
+    get:
+      tags:
+        - Edge/Cloud Compute Chunk
+      summary: Get Compute Chunks information
+      description: >-
+        Compute Chunks retrieval method
+      operationId: getComputeChunks
+      parameters:
+      - in: query
+        name: user_id
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetComputeChunks"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+    post:
+      tags:
+        - Edge/Cloud Compute Chunk
+      summary: Create a new Compute Chunk
+      description: >-
+        Compute Chunk registration method
+      operationId: postComputeChunk
+      requestBody:
+        description: The body of the request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ComputeChunkInput"
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostComputeChunk"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        '504':
+          $ref: '#/components/responses/GatewayTimeout'
+
+  /compute_chunk/{compute_chunk_id}:
+    get:
+      tags:
+        - Edge/Cloud Compute Chunk
+      summary: Get individual Compute Chunk information
+      description: >-
+        Compute Chunk retrieval method
+      operationId: getComputeChunk
+      parameters:
+        - in: path
+          name: compute_chunk_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostComputeChunk"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+    delete:
+      tags:
+        - Edge/Cloud Compute Chunk
+      summary: Delete a Compute Chunk
+      description: >-
+        Compute Chunk deletion method
+      operationId: deleteComputeChunk
+      parameters:
+      - in: path
+        name: compute_chunk_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Request succeeded
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+  
+  /compute_chunk/{compute_chunk_id}/cpus:
+    put:
+      tags:
+        - Edge/Cloud Compute Chunk
+      summary: Modify an OpenStack project CPU quota
+      description: >-
+        OpenStack Project CPU quota modify method
+      operationId: modifyCpuComputeChunk
+      parameters:
+      - in: path
+        name: compute_chunk_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: The body of the request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ComputeChunkNewCPUInput"
+      responses:
+        '204':
+          description: Request succeeded
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+  
+  /compute_chunk/{compute_chunk_id}/ram:
+    put:
+      tags:
+        - Edge/Cloud Compute Chunk
+      summary: Modify an OpenStack project RAM quota
+      description: >-
+        OpenStack Project RAM quota modify method
+      operationId: modifyRamComputeChunk
+      parameters:
+      - in: path
+        name: compute_chunk_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: The body of the request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ComputeChunkNewRAMInput"
+      responses:
+        '204':
+          description: Request succeeded
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+  
+  /compute_chunk/{compute_chunk_id}/storage:
+    put:
+      tags:
+        - Edge/Cloud Compute Chunk
+      summary: Modify an OpenStack project storage quota
+      description: >-
+        OpenStack Project Storage quota modify method
+      operationId: modifyStorageComputeChunk
+      parameters:
+      - in: path
+        name: compute_chunk_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: The body of the request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ComputeChunkNewStorageInput"
+      responses:
+        '204':
+          description: Request succeeded
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+
+###################################################################
+
+  /network_chunk:
+    get:
+      tags:
+        - Edge/Cloud Network Chunk
+      summary: Get Network Chunks information
+      description: >-
+        Network Chunks retrieval method
+      operationId: getNetworkChunks
+      parameters:
+      - in: query
+        name: user_id
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetNetworkChunks"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+    post:
+      tags:
+        - Edge/Cloud Network Chunk
+      summary: Create a new Network Chunk
+      description: >-
+        Network Chunk registration method
+      operationId: postNetworkChunk
+      requestBody:
+        description: The body of the request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NetworkChunkInput"
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostNetworkChunk"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        '504':
+          $ref: '#/components/responses/GatewayTimeout'
+
+  /network_chunk/{network_chunk_id}:
+    get:
+      tags:
+        - Edge/Cloud Network Chunk
+      summary: Get individual Network Chunk information
+      description: >-
+        Network Chunk retrieval method
+      operationId: getNetworkChunk
+      parameters:
+        - in: path
+          name: network_chunk_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostNetworkChunk"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+    delete:
+      tags:
+        - Edge/Cloud Network Chunk
+      summary: Delete a Network Chunk
+      description: >-
+        Network Chunk deletion method
+      operationId: deleteNetworkChunk
+      parameters:
+      - in: path
+        name: network_chunk_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Request succeeded
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+
+###################################################################
+
+  /ran_infrastructure/{ran_infrastructure_id}/radio_chunk:
+    get:
+      tags:
+        - Radio Access Network Chunk
+      summary: Get radio chunks information
+      description: >-
+        Radio Chunk retrieval method
+      operationId: getRadioChunks
+      parameters:
+      - in: path
+        name: ran_infrastructure_id
+        required: true
+        schema:
+          type: string
+      - in: query
+        name: user_id
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostRadioChunk"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+    post:
+      tags:
+        - Radio Access Network Chunk
+      summary: Create a new radio chunk
+      description: >-
+        Radio Chunk registration method
+      operationId: postRadioChunk
+      parameters:
+        - in: path
+          name: ran_infrastructure_id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The body of the request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RadioChunkInput"
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostRadioChunk"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /ran_infrastructure/{ran_infrastructure_id}/radio_chunk/validate:
+    post:
+      tags:
+        - Radio Access Network Chunk
+      summary: Validate radio chunk topology
+      description: >-
+        Radio Chunk validation method
+      operationId: validateRadioChunk
+      parameters:
+      - in: path
+        name: ran_infrastructure_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: The body of the request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RadioChunkInput"
+      responses:
+        '204':
+          description: Request succeeded
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /ran_infrastructure/{ran_infrastructure_id}/radio_chunk/{radio_chunk_id}:
+    get:
+      tags:
+        - Radio Access Network Chunk
+      summary: Get individual radio chunk information
+      description: >-
+        Radio chunk retrieval method
+      operationId: getRadioChunk
+      parameters:
+      - in: path
+        name: ran_infrastructure_id
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: radio_chunk_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostRadioChunk"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+    put:
+      tags:
+        - Radio Access Network Chunk
+      summary: Edit individual radio chunk
+      description: >-
+        Radio chunk update method
+      operationId: putRadioChunk
+      parameters:
+      - in: path
+        name: ran_infrastructure_id
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: radio_chunk_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: The body of the request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RadioChunkInput"
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostRadioChunk"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+    delete:
+      tags:
+        - Radio Access Network Chunk
+      summary: Delete a radio chunk
+      description: >-
+        Radio chunk deletion method
+      operationId: deleteRadioChunk
+      parameters:
+        - in: path
+          name: ran_infrastructure_id
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: radio_chunk_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Request succeeded
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+
+  /ran_infrastructure/{ran_infrastructure_id}/radio_chunk/{radio_chunk_id}/chunk_topology:
+    get:
+      tags:
+        - Radio Access Network Chunk
+      summary: Get individual radio chunk topology information
+      description: >-
+        Radio chunk topology retrieval method
+      operationId: getadioChunkTopology
+      parameters:
+      - in: path
+        name: ran_infrastructure_id
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: radio_chunk_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetRadioChunkTopo"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+###################################################################
+
+  /slic3:
+    get:
+      tags:
+        - Network Slice (collection of chunks)
+      summary: Get slice(s) information
+      description: >-
+        Slice retrieval method
+      operationId: getSlic3s
+      parameters:
+      - in: query
+        name: user_id
+        schema:
+          type: string
+      - in: query
+        name: phy_id
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetSlic3s"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+    post:
+      tags:
+        - Network Slice (collection of chunks)
+      summary: Create a new slice
+      description: >-
+        Slice registration method
+      operationId: postSlic3
+      requestBody:
+        description: The body of the request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Slic3Input"
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostSlic3"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /slic3/{slic3_id}:
+    get:
+      tags:
+        - Network Slice (collection of chunks)
+      summary: Get individual slice information
+      description: >-
+        Slice retrieval method
+      operationId: getSlic3
+      parameters:
+        - in: path
+          name: slic3_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostSlic3"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+    delete:
+      tags:
+        - Network Slice (collection of chunks)
+      summary: Delete a slice
+      description: >-
+        Slice deletion method
+      operationId: deleteSlic3
+      parameters:
+      - in: path
+        name: slic3_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Request succeeded
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+
+  /slic3/{slic3_id}/add_chunks:
+    put:
+      tags:
+        - Network Slice (collection of chunks)
+      summary: Add chunks to individual Slic3
+      description: >-
+        Slic3 update method
+      operationId: addChunkSlic3
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: slic3_id
+          required: true
+          schema:
+            type: string
+          type: string
+          description: slic3_id
+      requestBody:
+        description: The body of the request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Slic3Put"
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostSlic3"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /slic3/{slic3_id}/del_chunks:
+    put:
+      tags:
+        - Network Slice (collection of chunks)
+      summary: Remove chunks from individual Slic3
+      description: >-
+        Slic3 update method
+      operationId: delChunkSlic3
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: slic3_id
+          required: true
+          schema:
+            type: string
+          type: string
+          description: slic3_id
+      requestBody:
+        description: The body of the request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Slic3Put"
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostSlic3"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+
+###################################################################
+
+  /ran_infrastructure/{ran_infrastructure_id}/radio_chunk/{radio_chunk_id}/radio_service:
+    get:
+      tags:
+        - Radio Service
+      summary: Get radio services information
+      description: >-
+        Radio service retrieval method
+      operationId: getRadioServices
+      parameters:
+      - in: path
+        name: ran_infrastructure_id
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: radio_chunk_id
+        required: true
+        schema:
+          type: string
+      - in: query
+        name: user_id
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetRadioServices"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+    post:
+      tags:
+        - Radio Service
+      summary: Create a new radio service
+      description: >-
+        Radio service registration method
+      operationId: postRadioService
+      parameters:
+        - in: path
+          name: ran_infrastructure_id
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: radio_chunk_id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The body of the request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RadioServiceInput"
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostRadioService"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /ran_infrastructure/{ran_infrastructure_id}/radio_chunk/{radio_chunk_id}/radio_service/{radio_service_id}:
+    get:
+      tags:
+        - Radio Service
+      summary: Get individual radio service information
+      description: >-
+        Radio service retrieval method
+      operationId: getRadioService
+      parameters:
+      - in: path
+        name: ran_infrastructure_id
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: radio_chunk_id
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: radio_service_id
+        required: true
+        schema:
+          type: string
+      - in: query
+        name: user_id
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostRadioService"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+    put:
+      tags:
+        - Radio Service
+      summary: Edit individual radio service interfaces
+      description: >-
+        Radio service interfaces update method
+      operationId: putRadioService
+      parameters:
+        - in: path
+          name: ran_infrastructure_id
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: radio_chunk_id
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: radio_service_id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The body of the request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RadioServiceInput"
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostRadioService"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+    delete:
+      tags:
+        - Radio Service
+      summary: Delete a radio service
+      description: >-
+        Radio Service deletion method
+      operationId: deleteRadioService
+      parameters:
+      - in: path
+        name: ran_infrastructure_id
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: radio_chunk_id
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: radio_service_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Request succeeded
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+
+###################################################################
+
+  /slic3_template:
+    get:
+      tags:
+        - Generic Network Slice Template (GST)
+      summary: Get generic slice templates information
+      description: >-
+        Generic slice templates retrieval method
+      operationId: getSlic3Temps
+      parameters:
+        - in: query
+          name: user_id
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetSlic3Temps"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+    post:
+      tags:
+        - Generic Network Slice Template (GST)
+      summary: Create a new generic slice template
+      description: >-
+        Generic slice template registration method
+      operationId: postSlic3Temp
+      requestBody:
+        description: The body of the request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Slic3TempInput"
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostSlic3Temp"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /slic3_template/{slic3_temp_id}:
+    get:
+      tags:
+        - Generic Network Slice Template (GST)
+      summary: Get individual generic slice template information
+      description: >-
+        Generic slice template retrieval method
+      operationId: getSlic3Temp
+      parameters:
+        - in: path
+          name: slic3_temp_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/postSlic3Temp"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+    delete:
+      tags:
+        - Generic Network Slice Template (GST)
+      summary: Delete a generic slice template
+      description: >-
+        Generic slice template deletion method
+      operationId: deleteSlic3Temp
+      parameters:
+        - in: path
+          name: slic3_temp_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Request succeeded
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+
+###################################################################
+
+  /slic3_type:
+    get:
+      tags:
+        - Network Slice Type (NEST)
+      summary: Get network slice types information
+      description: >-
+        Network slice types retrieval method
+      operationId: getSlic3Types
+      parameters:
+        - in: query
+          name: user_id
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetSlic3Types"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+    post:
+      tags:
+        - Network Slice Type (NEST)
+      summary: Create a new network slice type
+      description: >-
+        Network slice type registration method
+      operationId: postSlic3Type
+      requestBody:
+        description: The body of the request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Slic3TypeInput"
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostSlic3Type"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /slic3_type/{slic3_type_id}:
+    get:
+      tags:
+        - Network Slice Type (NEST)
+      summary: Get individual network slice type information
+      description: >-
+        Network slice type retrieval method
+      operationId: getSlic3Type
+      parameters:
+        - in: path
+          name: slic3_type_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostSlic3Type"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+    delete:
+      tags:
+        - Network Slice Type (NEST)
+      summary: Delete a network slice type
+      description: >-
+        Network slice type deletion method
+      operationId: deleteSlic3Type
+      parameters:
+        - in: path
+          name: slic3_type_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Request succeeded
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+
+  /slic3_type/{slic3_type_id}/slice_blueprint:
+    get:
+      tags:
+        - Network Slice Type (NEST)
+      summary: Get individual network slice type blueprint information
+      description: >-
+        Network slice type atomic chunks retrieval method
+      operationId: getSlic3TypeChunks
+      parameters:
+        - in: path
+          name: slic3_type_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostSlic3TypeChunks"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+###################################################################
+
+  /slic3_instance:
+    get:
+      tags:
+        - Network Slice Instance (NEST-based)
+      summary: Get slice instance(s) information
+      description: >-
+        Slice instance retrieval method
+      operationId: getSlic3Instances
+      parameters:
+        - in: query
+          name: user_id
+          schema:
+            type: string
+        - in: query
+          name: phy_id
+          schema:
+            type: string
+        - in: query
+          name: slic3_type_id
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetSlic3Instances"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+    post:
+      tags:
+        - Network Slice Instance (NEST-based)
+      summary: Create a new slice instance
+      description: >-
+        Slice instance registration method
+      operationId: postSlic3Instance
+      requestBody:
+        description: The body of the request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Slic3InstanceInput"
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostSlic3Instance"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /slic3_instance/{slic3_instance_id}:
+    get:
+      tags:
+        - Network Slice Instance (NEST-based)
+      summary: Get individual slice instance information
+      description: >-
+        Slice instance retrieval method
+      operationId: getSlic3Instance
+      parameters:
+        - in: path
+          name: slic3_instance_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostSlic3Instance"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+    delete:
+      tags:
+        - Network Slice Instance (NEST-based)
+      summary: Delete a slice instance
+      description: >-
+        Slice instance deletion method
+      operationId: deleteSlic3Instance
+      parameters:
+        - in: path
+          name: slic3_instance_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Request succeeded
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+
+###################################################################
+
+  /network_service:
+
+    get:
+      tags:
+        - Network Service
+      summary: Gets network_services information
+      description: >-
+        Network service retrieval method
+      operationId: getNetworkServices
+      parameters:
+        - in: query
+          name: user_id
+          schema:
+            type: string
+            description: Network Services owned by user with user_id
+          type: string
+      produces:
+        - application/json
+      responses:
+        200:
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetNetworkServices"
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+    post:
+      tags:
+        - Network Service
+      summary: Register a new network service resource
+      description: >-
+        Network service registration method
+      operationId: postNetwork_Service
+      produces:
+        - application/json
+      requestBody:
+        description: The body of the request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NetworkServiceInput"
+      responses:
+        200:
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostNetworkService"
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /network_service/{network_service_id}:
+    get:
+      tags:
+        - Network Service
+      summary: Network service information retrieval
+      description: >-
+        Network service retrieval method
+      operationId: getNetworkService
+      parameters:
+        - in: path
+          name: network_service_id
+          required: true
+          schema:
+            type: string
+          type: string
+          description: network_service_id
+      produces:
+        - application/json
+      responses:
+        200:
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostNetworkService"
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+    delete:
+      tags:
+        - Network Service
+      summary: Delete a network service
+      description: >-
+        Network service deletion method
+      operationId: deleteNetwork_Service
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: network_service_id
+          description: network_service_id
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Request succeeded
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  ############################################################################################
+
+  /network_service_instance:
+    get:
+      tags:
+        - Application Instance
+      summary: Get network service instances information
+      description: >-
+        Network service instance retrieval method
+      operationId: getNetworkServiceInstances
+      parameters:
+        - in: query
+          name: user_id
+          schema:
+            type: string
+        - in: query
+          name: slic3_id
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetNetworkServiceInstances"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+    post:
+      tags:
+        - Application Instance
+      summary: Create a new network service instance
+      description: >-
+        Network service instance registration method
+      operationId: postNetworkServiceInstance
+      requestBody:
+        description: The body of the request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NetworkServiceInstanceInput"
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostNetworkServiceInstance"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /network_service_instance/{network_service_instance_id}:
+    get:
+      tags:
+        - Application Instance
+      summary: Get individual network service instance information
+      description: >-
+        Network service instance retrieval method
+      operationId: getNetworkServiceInstance
+      parameters:
+        - in: path
+          name: network_service_instance_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Request succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostNetworkServiceInstance"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+    delete:
+      tags:
+        - Application Instance
+      summary: Delete a network service instance
+      description: >-
+        Network service instance deletion method
+      operationId: deleteNetworkServiceInstance
+      parameters:
+      - in: path
+        name: network_service_instance_id
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Request succeeded
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+
+  /network_service_instance/{network_service_instance_id}/scale:
+    post:
+      tags:
+        - Application Instance
+      summary: Scale individual network service instance
+      description: >-
+        Network service instance scaling method
+      operationId: scaleNetworkServiceInstance
+      parameters:
+      - in: path
+        name: network_service_instance_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: The body of the request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NetworkServiceInstanceScaleInput"
+      responses:
+        '204':
+          description: Request succeeded
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /network_service_instance/{network_service_instance_id}/reaction:
+    post:
+      tags:
+        - Application Instance
+      summary: Perform reaction on individual network service instance
+      description: >-
+        Network Service Instance reaction method
+      operationId: NetworkServiceInstanceReaction
+      parameters:
+      - in: path
+        name: network_service_instance_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: The body of the request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NetworkServiceInstanceReactionInput"
+      responses:
+        '204':
+          description: Request succeeded
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+components:
+
+  schemas:
+    GetUser:
+      type: object
+      required:
+        - user
+      properties:
+        name:
+          type: string
+          example: John Doe
+        email:
+          type: string
+          example: john.doe@example.com
+        id:
+          type: string
+          example: 5b62faa058f5682e3b0da3f1
+
+    GetUsers:
+      type: array
+      items:
+        $ref: "#/components/schemas/GetUser"
+
+    UserInput:
+      type: object
+      properties:
+        name:
+          type: string
+          example: John Doe
+        email:
+          type: string
+          example: john.doe@example.com
+
+    PostUser:
+      type: object
+      properties:
+        name:
+          type: string
+          example: John Doe
+        id:
+          type: string
+          example: 5b62fd4c58f5682e3b0da3f5
+        email:
+          type: string
+          example: john.doe@example.com
+
+    GetComputes:
+      type: array
+      items:
+        $ref: "#/components/schemas/PostCompute"
+
+    ComputeInput:
+      type: object
+      properties:
+        name:
+          type: string
+          example: nova
+        user_id:
+          type: string
+          example: 5b63089158f568073093f70d
+        location:
+          type: object
+          properties:
+            latitude:
+              type: float
+              example: 2.3
+            longitude:
+              type: float
+              example: 2.4
+        compute_type:
+          type: string
+          example: openstack
+        trusted:
+          type: boolean
+          example: False
+        compute_data:
+          type: object
+          properties:
+            project_name:
+              type: string
+              example: admin
+            availability_zone:
+              type: string
+              example: nova
+            password:
+              type: string
+              example: admin
+            auth_url:
+              type: string
+              example: http://localhost/identity/v3
+            domain_name:
+              type: string
+              example: default
+            username:
+              type: string
+              example: admin
+
+    PostCompute:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 5b6308c258f568073093f70e
+        name:
+          type: string
+          example: nova
+        user_id:
+          type: string
+          example: 5b63089158f568073093f70d
+        location:
+          type: object
+          properties:
+            latitude:
+              type: float
+              example: 2.3
+            longitude:
+              type: float
+              example: 2.4
+        compute_type:
+          type: string
+          example: openstack|fos
+        trusted:
+          type: boolean
+          example: False
+        compute_data:
+          type: object
+          properties:
+            status:
+              type: string
+              example: reachable|unreachable|saturated
+            availability_zone:
+              type: string
+              example: nova
+            quota:
+              type: object
+              properties:
+                ram:
+                  type: object
+                  properties:
+                    provisioned:
+                      type: integer
+                      example: 1024
+                    total:
+                      type: integer
+                      example: 2048
+                    units:
+                      type: string
+                      example: MB
+                cpus:
+                  type: object
+                  properties:
+                    provisioned:
+                      type: integer
+                      example: 16
+                    total:
+                      type: integer
+                      example: 32
+                storage:
+                  type: object
+                  properties:
+                    provisioned:
+                      type: integer
+                      example: 100
+                    total:
+                      type: integer
+                      example: 200
+                    units:
+                      type: string
+                      example: GB
+        available_phy_net:
+          type: bool
+          example: false|true
+
+    GetPhysicalNetworks:
+      type: array
+      items:
+        $ref: "#/components/schemas/PostPhysicalNetwork"
+
+    PhysicalNetworkInput:
+      type: object
+      properties:
+        name:
+          type: string
+          example: public
+        user_id:
+          type: string
+          example: 5b63089158f568073093f70d
+        data_subnetpool:
+          type: object
+          properties:
+            name:
+              type: string
+              example: data-subnetpool
+            prefixlen:
+              type: integer
+              example: 24
+            prefixes:
+              type: string
+              example: 172.16.0.0/16
+        mgmt_subnetpool:
+          type: object
+          properties:
+            name:
+              type: string
+              example: mgmt-subnetpool
+            prefixlen:
+              type: integer
+              example: 26
+            prefixes:
+              type: string
+              example: 10.0.0.0/16
+        physical_network_data:
+          type: object
+          properties:
+            project_name:
+              type: string
+              example: admin
+            password:
+              type: string
+              example: admin
+            auth_url:
+              type: string
+              example: http://localhost/identity/v3
+            domain_name:
+              type: string
+              example: default
+            username:
+              type: string
+              example: admin
+            neutron_phy_net_name:
+              type: string
+              example: default
+            quota:
+              type: object
+              properties:
+                bandwidth:
+                  type: object
+                  properties:
+                    provisioned:
+                      type: integer
+                      example: 1024
+                    total:
+                      type: integer
+                      example: 2048
+                    units:
+                      type: string
+                      example: MB/s
+                tag_range:
+                  type: object
+                  properties:
+                    init:
+                      type: integer
+                      example: 2
+                    end:
+                      type: integer
+                      example: 4094
+                provisioned_tags:
+                  type: array
+                  items:
+                    type: integer
+                    example: 567
+        local_network_data:
+          type: object
+          properties:
+            cidr:
+              type: string
+              example: 10.10.10.0/24
+            gateway:
+              type: string
+              example: 10.10.10.1
+            vlan_tag:
+              type: string
+              example: 1400
+            ip_pool_start:
+              type: string
+              example:  10.10.10.2
+            ip_pool_end:
+              type: string
+              example: 10.10.10.250
+
+    PostPhysicalNetwork:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 5b6308c258f568073093f70e
+        name:
+          type: string
+          example: public
+        user_id:
+          type: string
+          example: 5b63089158f568073093f70d
+        data_subnetpool:
+          type: object
+          properties:
+            name:
+              type: string
+              example: data-subnetpool
+            prefixlen:
+              type: integer
+              example: 24
+            prefixes:
+              type: string
+              example: 172.16.0.0/16
+        mgmt_subnetpool:
+          type: object
+          properties:
+            name:
+              type: string
+              example: mgmt-subnetpool
+            prefixlen:
+              type: integer
+              example: 26
+            prefixes:
+              type: string
+              example: 10.0.0.0/16
+        physical_network_data:
+          type: object
+          properties:
+            quota:
+              type: object
+              properties:
+                bandwidth:
+                  type: object
+                  properties:
+                    provisioned:
+                      type: integer
+                      example: 1024
+                    total:
+                      type: integer
+                      example: 2048
+                    units:
+                      type: string
+                      example: MB/s
+                tag_range:
+                  type: object
+                  properties:
+                    init:
+                      type: integer
+                      example: 2
+                    end:
+                      type: integer
+                      example: 4094
+                provisioned_tags:
+                  type: array
+                  items:
+                    type: integer
+                    example: 567
+        local_network_data:
+          type: object
+          properties:
+            cidr:
+              type: string
+              example: 10.10.10.0/24
+            gateway:
+              type: string
+              example: 10.10.10.1
+            vlan_tag:
+              type: string
+              example: 1400
+            ip_pool_start:
+              type: string
+              example:  10.10.10.2
+            ip_pool_end:
+              type: string
+              example: 10.10.10.250
+
+    GetRANInfrastructures:
+      type: array
+      items:
+        $ref: "#/components/schemas/PostRANInfrastructure"
+
+    RANInfrastructureInput:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Barcelona
+        user_id:
+          type: string
+          example: 5b63089158f568073093f70d
+        ran_infrastructure_data:
+          type: object
+          properties:
+            password:
+              type: string
+              example: pass123
+            username:
+              type: string
+              example: user1
+            controller_url:
+              type: string
+              example: http://192.168.11.23:8008/
+            quota:
+              type: object
+              properties:
+                available_plmnids:
+                  type: array
+                  items:
+                    type: string
+                    example: "00101"
+        location:
+          type: object
+          properties:
+            latitude:
+              type: float
+              example: 41.39
+            longitude:
+              type: float
+              example: 2.15
+
+    PostRANInfrastructure:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Barcelona
+        id:
+          type: string
+          example: 5b63089158f568073093f70d
+        user_id:
+          type: string
+          example: 5b63089158f568073093f70d
+        ran_infrastructure_data:
+          type: object
+          properties:
+            password:
+              type: string
+              example: pass123
+            username:
+              type: string
+              example: user1
+            controller_url:
+              type: string
+              example: http://192.168.11.23:8008
+            status:
+              type: string
+              example: reachable|unreachable
+            quota:
+              type: object
+              properties:
+                available_plmnids:
+                  type: array
+                  items:
+                    type: string
+                    example: "00101"
+        location:
+          type: object
+          properties:
+            latitude:
+              type: float
+              example: 41.39
+            longitude:
+              type: float
+              example: 2.15
+
+    GetRANInfrastructureTopo:
+      type: object
+      properties:
+        links:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                example: d66ed035-845e-4919-a746-85ed204cd53f
+              key:
+                type: string
+                example: s0:phy0:3->s1:phy2:2
+              srcPhyId:
+                type: string
+                example: 11451e2b-475d-4f79-a75f-b5de6aa36bbe
+              dstPhyId:
+                type: string
+                example: e8eff2b4-c317-47c6-b4d8-5d059336a7a0
+        boxes:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                example: 0588e9b1-b80e-4bc1-a352-1cc501b3ebe1
+              location:
+                type: object
+                properties:
+                  latitude:
+                    type: float
+                    example: 41.387199
+                  longitude:
+                    type: float
+                    example: 2.1119
+              name:
+                type: string
+                example: s2
+              phys:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 6c4eff48-3e5b-4c63-b275-4263877ee609
+                    name:
+                      type: string
+                      example: phy0
+                    type:
+                      type: string
+                      example: SUB6_ACCESS
+                    config:
+                      type: object
+                      properties:
+                        channelNumber:
+                          type: integer
+                          example: 36
+                        txPower:
+                          type: integer
+                          example: 200
+                        channelBandwidth:
+                          type: integer
+                          example: 20
+
+    GetRANInfraBoxes:
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            type: string
+            example: 5690941a-c979-464d-9931-b315dbaf4d15
+          ipAddress:
+            type: string
+            example: 10.0.10.50
+          name:
+            type: string
+            example: I2CAT_BOX
+          status:
+            type: string
+            example: HEALTHY
+          type:
+            type: string
+            example: AMARISOFT_BOX
+
+    PutBoxConfigInput:
+      type: object
+      properties:
+        rfParams:
+          type: object
+          properties:
+            rxGain:
+              type: integer
+              example: 60
+            txGain:
+              type: integer
+              example: 90
+
+    GetRANInfraBoxRFPorts:
+      type: array
+      items:
+        type: object
+        properties:
+          portId:
+            type: integer
+            example: 0
+          maxAntennaDL:
+            type: integer
+            example: 2
+          maxAntennaUL:
+            type: integer
+            example: 2
+          maxBandwidth:
+            type: integer
+            example: 56
+          configuredBand:
+            type: integer
+            example: 78
+          supportedBands:
+            type: array
+            items:
+              type: object
+              properties:
+                band:
+                  type: integer
+                  example: 78
+                frequencyLowLimit:
+                  type: integer
+                  example: 1500
+                frequencyHighLimit:
+                  type: integer
+                  example: 2000
+
+    PutRFPortConfigInput:
+      type: object
+      properties:
+        band:
+          type: integer
+          example: 78
+
+    BoxCellInput:
+      type: object
+      properties:
+        cellId:
+          type: integer
+          example: 1
+        physicalCellId:
+          type: integer
+          example: 1
+        selectedRFPort:
+          type: integer
+          example: 0
+        type:
+          type: string
+          example: 4G-TDD
+
+    PostBoxCell:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 3f677970-de73-45ec-a468-d03de0b81fb0
+
+    PutBoxCellConfigInput:
+      type: object
+      properties:
+        bandwidth:
+          type: integer
+          example: 50
+        cellGain:
+          type: integer
+          example: 0
+        rootSeqIndex:
+          type: integer
+          example: 100
+        tddConfig:
+          type: integer
+          example: 2
+        earfcnDl:
+          type: integer
+          example: 650000
+        tac:
+          type: integer
+          example: 67
+
+    PutWifiConfigurationInput:
+      type: object
+      properties:
+        channelNumber:
+          type: integer
+          example: 36
+        txPower:
+          type: integer
+          example: 200
+        channelBandwidth:
+          type: integer
+          example: 20
+
+    # PutWirelessConfigurationInput:
+    #   type: object
+    #   properties:
+    #     channelNumber:
+    #       type: integer
+    #       example: 36
+    #     txPower:
+    #       type: integer
+    #       example: 200
+    #     channelBandwidth:
+    #       type: integer
+    #       example: 20
+
+    PutLTEConfigurationInput:
+      type: object
+      properties:
+        earfcnDL:
+          type: integer
+          example: 41690
+        refSignalPower:
+          type: integer
+          example: -40
+        phyCellId:
+          type: integer
+          example: 512
+
+    GetTelemetryServers:
+      type: array
+      items:
+        $ref: "#/components/schemas/PostTelemetryServer"
+
+    TelemetryServerInput:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Barcelona
+        user_id:
+          type: string
+          example: 5b63089158f568073093f70d
+        telemetry_server_data:
+          type: object
+          properties:
+            server_ip:
+              type: string
+              example: 192.168.11.23
+            server_port:
+              type: string
+              example: "4400"
+
+    PostTelemetryServer:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Barcelona
+        id:
+          type: string
+          example: 5b63089158f568073093f70d
+        user_id:
+          type: string
+          example: 5b63089158f568073093f70d
+        telemetry_server_data:
+          type: object
+          properties:
+            server_ip:
+              type: string
+              example: 192.168.11.23
+            server_port:
+              type: string
+              example: "4400"
+            status:
+              type: string
+              example: reachable|unreachable
+
+    GetTelemetryTargets:
+      type: array
+      items:
+        $ref: "#/components/schemas/PostTelemetryTarget"
+
+    PutTelemetryTargetInput:
+      type: object
+      properties:
+        name:
+          type: string
+          example: I2CAT_BOX1
+        exporter_ip:
+          type: string
+          example: 10.0.10.50
+        exporter_port:
+          type: string
+          example: "8008"
+
+    TelemetryTargetInput:
+      allOf:
+      - $ref: "#/components/schemas/PutTelemetryTargetInput"
+      - type: object
+        properties:
+          target_uid:
+            type: string
+            example: 5690941a-c979-464d-9931-b315dbaf4d15
+          device_type:
+            type: string
+            example: I2CAT_BOX
+
+    PostTelemetryTarget:
+      allOf:
+      - $ref: "#/components/schemas/PutTelemetryTargetInput"
+      - type: object
+        properties:
+          target_uid:
+            type: string
+            example: 5690941a-c979-464d-9931-b315dbaf4d15
+
+    GetComputeChunks:
+      type: array
+      items:
+        $ref: "#/components/schemas/PostComputeChunk"
+
+    ComputeChunkNewCPUInput:
+      type: object
+      properties:
+        cpus:
+          type: object
+          properties:
+            required:
+              type: integer
+              example: 16
+
+    ComputeChunkNewRAMInput:
+      type: object
+      properties:
+        ram:
+          type: object
+          properties:
+            required:
+              type: integer
+              example: 1024
+            units:
+              type: string
+              example: "MB"
+    
+    ComputeChunkNewStorageInput:
+      type: object
+      properties:
+        storage:
+          type: object
+          properties:
+            required:
+              type: integer
+              example: 100
+            units:
+              type: string
+              example: "GB"
+
+    ComputeChunkInput:
+      type: object
+      properties:
+        name:
+          type: string
+          example: nova
+        user_id:
+          type: string
+          example: 5b63089158f568073093f70d
+        username:
+          type: string
+          example: username
+        password:
+          type: string
+          example: password
+        description:
+          type: string
+          example: Compute node 1 on test-bed 2
+        compute_id:
+          type: string
+          example: 5b63089158f568073093f70d
+        requirements:
+          type: object
+          properties:
+            ram:
+              type: object
+              properties:
+                required:
+                  type: integer
+                  example: 1024
+                units:
+                  type: string
+                  example: MB
+            cpus:
+              type: object
+              properties:
+                required:
+                  type: integer
+                  example: 16
+            storage:
+              type: object
+              properties:
+                required:
+                  type: integer
+                  example: 100
+                units:
+                  type: string
+                  example: GB
+
+    PostComputeChunk:
+      type: object
+      properties:
+        name:
+          type: string
+          example: compute_chunk
+        id:
+          type: string
+          example: 5b63089158f568073093f70d
+        user_id:
+          type: string
+          example: 5b63089158f568073093f70d
+        username:
+          type: string
+          example: username
+        description:
+          type: string
+          example: Compute node 1 on test-bed 2
+        compute_id:
+          type: string
+          example: 5b63089158f568073093f70d
+        availability_zone:
+          type: string
+          example: nova
+        requirements:
+          type: object
+          properties:
+            ram:
+              type: object
+              properties:
+                required:
+                  type: integer
+                  example: 1024
+                consumed:
+                  type: integer
+                  example: 512
+                units:
+                  type: string
+                  example: MB
+            cpus:
+              type: object
+              properties:
+                required:
+                  type: integer
+                  example: 16
+                consumed:
+                  type: integer
+                  example: 4
+            storage:
+              type: object
+              properties:
+                required:
+                  type: integer
+                  example: 100
+                consumed:
+                  type: integer
+                  example: 20
+                units:
+                  type: string
+                  example: GB
+        available_ext_net:
+          type: bool
+          example: false|true
+
+    GetNetworkChunks:
+      type: array
+      items:
+        $ref: "#/components/schemas/PostNetworkChunk"
+
+    NetworkChunkInput:
+      type: object
+      properties:
+        name:
+          type: string
+          example: network_chunk1
+        user_id:
+          type: string
+          example: 5b63089158f568073093f703
+        physical_network_id:
+          type: string
+          example: 5b63089158f568073093f702
+        compute_chunk_id:
+          type: string
+          example: 5b63089158f568073093f701
+        requirements:
+          type: object
+          properties:
+            bandwidth:
+              type: object
+              properties:
+                required:
+                  type: integer
+                  example: 1024
+                units:
+                  type: string
+                  example: MB/s
+        role:
+          type: string
+          enum: [data-network, access-access]
+          example: data-network
+        tag:
+          type: integer
+          example: 103
+
+    PostNetworkChunk:
+      type: object
+      properties:
+        name:
+          type: string
+          example: network_chunk2
+        id:
+          type: string
+          example: 5b63089158f568073093f70d
+        user_id:
+          type: string
+          example: 5b63089158f568073093f70d
+        physical_network_id:
+          type: string
+          example: 5b63089158f568073093f70d
+        compute_chunk_id:
+          type: string
+          example: 5b63089158f568073093f70d
+        tag:
+          type: integer
+          example: 103
+        cidr:
+          type: string
+          example: 192.168.101.0/24
+        os_netowrk_id:
+          type: string
+          example: 92b60b94-a554-46d8-9521-f7212b913daf
+        requirements:
+          type: object
+          properties:
+            bandwidth:
+              type: object
+              properties:
+                required:
+                  type: integer
+                  example: 1024
+                units:
+                  type: string
+                  example: MB/s
+        role:
+          type: string
+          example: data-network
+
+    GetRadioChunkTopo:
+      type: object
+      properties:
+        selectedLinks:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                example: d66ed035-845e-4919-a746-85ed204cd53f
+              key:
+                type: string
+                example: s0:phy0:3->s1:phy2:2
+              srcPhyId:
+                type: string
+                example: 11451e2b-475d-4f79-a75f-b5de6aa36bbe
+              dstPhyId:
+                type: string
+                example: e8eff2b4-c317-47c6-b4d8-5d059336a7a0
+        selectedPhys:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+                example: eab34abc-099f-4d4c-b573-ef5c24fba79b
+              name:
+                type: string
+                example: eth0
+              type:
+                type: string
+                example: WIRED_TUNNEL
+              config:
+                type: object
+                example: {}
+              box_name:
+                type: string
+                example: s2
+
+    RadioChunkInput:
+      type: object
+      properties:
+        name:
+          type: string
+          example: RadioChunk
+        user_id:
+          type: string
+          example: 5b63089158f568073093f70d
+        chunk_topology:
+          type: object
+          properties:
+            selectedPhys:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: f9af122a-c641-4084-ad61-2cdd9353fbc0
+                  type:
+                    type: string
+                    example: SUB6_ACCESS
+                  name:
+                    type: string
+                    example: phy0
+                  config:
+                    type: object
+                    properties:
+                      channelNumber:
+                        type: integer
+                        example: 36
+                      txPower:
+                        type: integer
+                        example: 200
+                      channelBandwidth:
+                        type: integer
+                        example: 20
+            selectedLinks:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: d66ed035-845e-4919-a746-85ed204cd53f
+                  key:
+                    type: string
+                    example: s0:phy0:3->s1:phy2:2
+                  srcPhyId:
+                    type: string
+                    example: 11451e2b-475d-4f79-a75f-b5de6aa36bbe
+                  dstPhyId:
+                    type: string
+                    example: e8eff2b4-c317-47c6-b4d8-5d059336a7a0
+                    
+    PutRadioChunk:
+      type: object
+      properties:
+        name:
+          type: string
+          example: RadioChunk
+        user_id:
+          type: string
+          example: 5b63089158f568073093f70d
+        selectedPhys:
+          type: array
+          items:
+            type: string
+            example: 0a3dd93a-e527-469d-8c4c-835192d6e6b5
+        selectedLinks:
+          type: array
+          items:
+            type: string
+            example: b21235d0-f531-4415-a9ff-8d8c4e26ef37
+
+    PostRadioChunk:
+      type: object
+      properties:
+        name:
+          type: string
+          example: RadioChunk
+        id:
+          type: string
+          example: 5b63089158f568073093f70d
+        user_id:
+          type: string
+          example: 5b63089158f568073093f70d
+        ran_infrastructure_id:
+          type: string
+          example: 5b63089158f568073093f70d
+        ran_controller_id:
+          type: string
+          example: 3f677970-de73-45ec-a468-d03de0b81fb0
+        chunk_topology:
+          type: object
+          properties:
+            selectedPhys:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: f9af122a-c641-4084-ad61-2cdd9353fbc0
+                  type:
+                    type: string
+                    example: SUB6_ACCESS
+                  name:
+                    type: string
+                    example: phy0
+                  config:
+                    type: object
+                    properties:
+                      channelNumber:
+                        type: integer
+                        example: 36
+                      txPower:
+                        type: integer
+                        example: 200
+                      channelBandwidth:
+                        type: integer
+                        example: 20
+            selectedLinks:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: d66ed035-845e-4919-a746-85ed204cd53f
+                  key:
+                    type: string
+                    example: s0:phy0:3->s1:phy2:2
+                  srcPhyId:
+                    type: string
+                    example: 11451e2b-475d-4f79-a75f-b5de6aa36bbe
+                  dstPhyId:
+                    type: string
+                    example: e8eff2b4-c317-47c6-b4d8-5d059336a7a0
+
+    GetSlic3s:
+      type: array
+      items:
+        $ref: "#/components/schemas/PostSlic3"
+
+    Slic3Input:
+      type: object
+      properties:
+        name:
+          type: string
+          example: nova
+        user_id:
+          type: string
+          example: 5b63089158f568073093f70d
+        chunk_ids:
+          type: array
+          items:
+            type: string
+            example: 6b63089158f568073093f70a
+
+    PostSlic3:
+      type: object
+      properties:
+        name:
+          type: string
+          example: TestSlic3
+        id:
+          type: string
+          example: 5b63089158f568073093f70d
+        user_id:
+          type: string
+          example: 5b63089158f568073093f70d
+        chunks:
+          type: object
+          properties:
+            compute_chunk:
+              type: array
+              items:
+                $ref: "#/components/schemas/PostComputeChunk"
+            network_chunk:
+              type: array
+              items:
+                $ref: "#/components/schemas/PostNetworkChunk"
+            radio_chunk:
+              type: array
+              items:
+                $ref: "#/components/schemas/PostRadioChunk"
+        activation_status:
+          type: string
+          example: pending|not-needed|configured
+        radio_service:
+          $ref: "#/components/schemas/PostRadioService"
+
+    PostSlic3Chunks:
+      type: object
+      properties:
+        name:
+          type: string
+          example: TestSlic3
+        id:
+          type: string
+          example: 5b63089158f568073093f70d
+        user_id:
+          type: string
+          example: 5b63089158f568073093f70d
+        chunks:
+          type: object
+          properties:
+            compute_chunk:
+              type: array
+              items:
+                allOf:
+                - $ref: "#/components/schemas/PostComputeChunk"
+                - type: object
+                  properties:
+                    compute:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          example: 5da4d96f3947c07c434da2c5
+                        location:
+                          type: object
+                          properties:
+                            latitude:
+                              type: float
+                              example: 2.3
+                            longitude:
+                              type: float
+                              example: 2.4
+                        name:
+                          type: string
+                          example: compute
+            network_chunk:
+              type: array
+              items:
+                allOf:
+                - $ref: "#/components/schemas/PostNetworkChunk"
+                - type: object
+                  properties:
+                    physical_network:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          example: 5da4de663947c07c434da2cc
+                        name:
+                          type: string
+                          example: public
+            radio_chunk:
+              type: array
+              items:
+                allOf:
+                - $ref: "#/components/schemas/PostRadioChunk"
+                - type: object
+                  properties:
+                    ran_infrastructure:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          example: 5da4e82b3947c07e2280465a
+                        location:
+                          type: object
+                          properties:
+                            latitude:
+                              type: float
+                              example: 41.39
+                            longitude:
+                              type: float
+                              example: 2.15
+                        name:
+                          type: string
+                          example: Barcelona-RAN
+
+    Slic3Put:
+      type: object
+      properties:
+        chunk_ids:
+          type: array
+          items:
+            type: string
+            example: 6b63089158f568073093f70a
+
+    GetRadioServices:
+      type: array
+      items:
+        $ref: "#/components/schemas/PostRadioService"
+
+    RadioServiceInput:
+      type: object
+      properties:
+        name:
+          type: string
+          example: SS_02
+        user_id:
+          type: string
+          example: 5b63089158f568073093f70d
+        slic3_id:
+          type: string
+          example: 5d63089158f568073093f71e
+        wifi_config:
+          type: object
+          properties:
+            ssid:
+              type: string
+              example: MYSSID
+            encryption:
+              type: string
+              example: WPA
+            password:
+              type: string
+              example: minimumlengthpassword
+            airtimeWeight:
+              type: integer
+              example: 100
+            contentionWindowIncrease:
+              type: integer
+              example: 5
+        selected_root_phy:
+          type: string
+          example: f9af122a-c641-4084-ad61-2cdd9353fbc0
+        cellular_config:
+          type: object
+          properties:
+            plmn_id:
+              type: string
+              example: "00103"
+            core_vendor:
+              type: string
+              example: open5gs
+            license_type:
+              type: string
+              example: nano
+            license_uuid:
+              type: string
+              example: 670b9562-b30d-52d5-b827-655787665500
+            license_manager_info:
+              type: object
+              properties:
+                ip_address:
+                  type: string
+                  example: 10.10.10.10
+                username:
+                  type: string
+                  example: raemis
+                password:
+                  type: string
+                  example: raemis
+            enable_day2:
+              type: boolean
+              example: True
+            apn:
+              type: string
+              example: apn_test
+            apn_qci:
+              type: integer
+              example: 9
+            apn_dl_ambr:
+              type: integer
+              example: 10000000
+            apn_ul_ambr:
+              type: integer
+              example: 10000000
+            ue_data:
+              type: array
+              items:
+                type: object
+                properties:
+                  imsi:
+                    type: string
+                    example: 001030056734816
+                  dl_ambr:
+                    type: integer
+                    example: 10000000
+                  ul_ambr:
+                    type: integer
+                    example: 10000000
+            user_profile:
+              type: object
+              properties:
+                opc:
+                  type: string
+                  example: 000102030405060708090A0B0C0D0E0F
+                k:
+                  type: string
+                  example: 00112233445566778899AABBCCDDEEFF
+                amf:
+                  type: string
+                  example: 8000
+
+    PostRadioService:
+      type: object
+      properties:
+        name:
+          type: string
+          example: ss1
+        ran_controller_id:
+          type: string
+          example: 3f677970-de73-45ec-a468-d03de0b81fb0
+        ran_infrastructure_id:
+          type: string
+          example: 5b63089158f568073093f70d
+        radio_chunk_id:
+          type: string
+          example: 5b63089158f568073093f70d
+        slic3_id:
+          type: string
+          example: 5d63089158f568073093f71e
+        id:
+          type: string
+          example: 5b63089158f568073093f70d
+        user_id:
+          type: string
+          example: 5b63089158f568073093f70d
+        core_id:
+          type: string
+          example: 5b63089158f568073093f70d
+        core_floating_ip:
+          type: string
+          example: 192.168.10.210
+        dhcp_id:
+          type: string
+          example: 5b63089158f568073093f70d
+        wifi_config:
+          type: object
+          properties:
+            ssid:
+              type: string
+              example: MYSSID
+            encryption:
+              type: string
+              example: WPA
+            password:
+              type: string
+              example: minimumlengthpassword
+            airtimeWeight:
+              type: integer
+              example: 100
+            contentionWindowIncrease:
+              type: integer
+              example: 5
+        selected_root_phy:
+          type: string
+          example: f9af122a-c641-4084-ad61-2cdd9353fbc0
+        cellular_config:
+          type: object
+          properties:
+            core_vendor:
+              type: string
+              example: open5gs
+            license_type:
+              type: string
+              example: nano
+            license_uuid:
+              type: string
+              example: 670b9562-b30d-52d5-b827-655787665500
+            license_manager_info:
+              type: object
+              properties:
+                ip_address:
+                  type: string
+                  example: 10.10.10.10
+                username:
+                  type: string
+                  example: raemis
+                password:
+                  type: string
+                  example: raemis
+            plmn_id:
+              type: string
+              example: "00103"
+            enable_day2:
+              type: boolean
+              example: True
+            apn:
+              type: string
+              example: apn_test
+            apn_qci:
+              type: integer
+              example: 9
+            apn_dl_ambr:
+              type: integer
+              example: 10000000
+            apn_ul_ambr:
+              type: integer
+              example: 10000000
+            ue_data:
+              type: array
+              items:
+                type: object
+                properties:
+                  imsi:
+                    type: string
+                    example: 001030056734816
+                  dl_ambr:
+                    type: integer
+                    example: 10000000
+                  ul_ambr:
+                    type: integer
+                    example: 10000000
+            user_profile:
+              type: object
+              properties:
+                opc:
+                  type: string
+                  example: 000102030405060708090A0B0C0D0E0F
+                k:
+                  type: string
+                  example: 00112233445566778899AABBCCDDEEFF
+                amf:
+                  type: string
+                  example: 8000
+
+    GetSlic3Temps:
+      type: array
+      items:
+        $ref: "#/components/schemas/PostSlic3Temp"
+
+    Slic3TempInput:
+      type: object
+      properties:
+        user_id:
+          type: string
+          example: 5b63089158f568073093f70d
+        name:
+          type: string
+          example: gsma_gst
+        attributes:
+          type: object
+          properties:
+            compute_zone:
+              type: object
+              properties:
+                type:
+                  type: string
+                  example: string
+                supported_values:
+                  type: array
+                  items:
+                    type: string
+                    example: nexusEdge
+                description:
+                  type: string
+                  example: Availability Zone
+            access_tech:
+              type: object
+              properties:
+                type:
+                  type: string
+                  example: string
+                supported_values:
+                  type: array
+                  items:
+                    type: string
+                    example: 5GNSA
+                description:
+                  type: string
+                  example: Access Technology
+            isolation_level:
+              type: object
+              properties:
+                type:
+                  type: string
+                  example: string
+                supported_values:
+                  type: array
+                  items:
+                    type: string
+                    example: logical_isolation
+                description:
+                  type: string
+                  example: Isolation Level
+            data_access:
+              type: object
+              properties:
+                type:
+                  type: string
+                  example: string
+                supported_values:
+                  type: array
+                  items:
+                    type: string
+                    example: direct_internet_access
+                description:
+                  type: string
+                  example: User Data Access
+            coverage_area:
+              type: object
+              properties:
+                type:
+                  type: string
+                  example: dict
+                supported_values:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      latitude:
+                        type: float
+                        example: 41.39
+                      longitude:
+                        type: float
+                        example: 2.11
+                description:
+                  type: string
+                  example: Area of service
+            spectrum:
+              type: object
+              properties:
+                type:
+                  type: string
+                  example: string
+                supported_values:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      operating_band:
+                        type: string
+                        example: n78
+                      ful_low:
+                        type: integer
+                        example: 3300
+                      ful_high:
+                        type: integer
+                        example: 3800
+                      fdl_low:
+                        type: integer
+                        example: 3300
+                      fdl_high:
+                        type: integer
+                        example: 3800
+                      duplex_mode:
+                        type: string
+                        example: TDD
+                      access_tech:
+                        type: string
+                        example: cellular
+                description:
+                  type: string
+                  example: Radio spectrum
+            maximum_dl_ue:
+              type: object
+              properties:
+                type:
+                  type: string
+                  example: float
+                supported_values:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      value:
+                        type: float
+                        example: 1000000
+                      unit:
+                        type: string
+                        example: kbps
+                description:
+                  type: string
+                  example: Maximum Downlink Throughput per UE
+            maximum_ul_ue:
+              type: object
+              properties:
+                type:
+                  type: string
+                  example: float
+                supported_values:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      value:
+                        type: float
+                        example: 1000000
+                      unit:
+                        type: string
+                        example: kbps
+                description:
+                  type: string
+                  example: Maximum Uplink Throughput per UE
+            maximum_dl:
+              type: object
+              properties:
+                type:
+                  type: string
+                  example: float
+                supported_values:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      value:
+                        type: float
+                        example: 10000000
+                      unit:
+                        type: string
+                        example: kbps
+                description:
+                  type: string
+                  example: Maximum Downlink Throughput
+            maximum_ul:
+              type: object
+              properties:
+                type:
+                  type: string
+                  example: float
+                supported_values:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      value:
+                        type: float
+                        example: 10000000
+                      unit:
+                        type: string
+                        example: kbps
+                description:
+                  type: string
+                  example: Maximum Uplink Throughput
+
+    PostSlic3Temp:
+      allOf:
+        - $ref: "#/components/schemas/Slic3TempInput"
+        - type: object
+          properties:
+            id:
+              type: string
+              example: 5da4d96f3947c07c434da2c5
+            status:
+              type: string
+              example: active
+
+    GetSlic3Types:
+      type: array
+      items:
+        $ref: "#/components/schemas/PostSlic3Type"
+
+    Slic3TypeInput:
+      type: object
+      properties:
+        user_id:
+          type: string
+          example: 5b63089158f568073093f70d
+        slic3_temp_id:
+          type: string
+          example: 5c63089158f568073093f70e
+        name:
+          type: string
+          example: wifi_slice
+        version:
+          type: string
+          example: "0.1"
+        description:
+          type: string
+          example: WiFi Slice
+        nest_type:
+          type: string
+          example: slice
+        attributes:
+          type: array
+          items:
+            type: object
+            properties:
+              attribute_name:
+                type: string
+                example: compute_zone
+              attribute_type:
+                type: string
+                example: string
+              attribute_value:
+                type: string
+                example: nexusEdge
+              attribute_description:
+                type: string
+                example: Compute Availability Zone
+        configurable_parameters:
+          type: array
+          items:
+            type: object
+            properties:
+              parameter_name:
+                type: string
+                example: ssid
+              parameter_type:
+                type: string
+                example: string
+              parameter_description:
+                type: string
+                example: WiFi SSID
+        slice_blueprint:
+          type: object
+          properties:
+            compute_chunk:
+              type: array
+              items:
+                type: object
+                properties:
+                  compute_id:
+                    type: string
+                    example: 601881a8d68f2807e733c634
+            network_chunk:
+              type: array
+              items:
+                type: object
+                properties:
+                  physical_network_id:
+                    type: string
+                    example: 601881a8d68f2807e733c634
+                  role:
+                    type: string
+                    example: data-network
+            radio_chunk:
+              type: array
+              items:
+                type: object
+                properties:
+                  ran_infra_id:
+                    type: string
+                    example: 601881a8d68f2807e733c634
+                  chunk_topology:
+                    allOf:
+                    - $ref: "#/components/schemas/GetRadioChunkTopo"
+                    - type: object
+                      properties:
+                        boxList:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: string
+                                example: 5d2a1bad-cd52-4a72-8485-03ff9609c3b4
+                              type:
+                                type: string
+                                example: AMARISOFT_BOX
+                              rfPortList:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    portId:
+                                      type: integer
+                                      example:  0
+                                  supportedBandList:
+                                    type: array
+                                    items:
+                                      type: object
+                                      properties:
+                                        band: integer
+                                        example: 1
+
+#        atomic_services:
+#          type: object
+#          properties:
+#            radio_service:
+#              type: object
+#              properties:
+#                name:
+#                  type: string
+#                  example: radioServiceName
+#                selected_root_phy:
+#                  type: string
+#                  example: f9af122a-c641-4084-ad61-2cdd9353fbc0
+
+    PostSlic3Type:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 5da4d96f3947c07c434da2c5
+        user_id:
+          type: string
+          example: 5b63089158f568073093f70d
+        slic3_temp_id:
+          type: string
+          example: 5c63089158f568073093f70e
+        name:
+          type: string
+          example: wifi_slice
+        version:
+          type: string
+          example: "0.1"
+        description:
+          type: string
+          example: WiFi Slice
+        nest_type:
+          type: string
+          example: slice
+        attributes:
+          type: array
+          items:
+            type: object
+            properties:
+              attribute_name:
+                type: string
+                example: compute_zone
+              attribute_type:
+                type: string
+                example: string
+              attribute_value:
+                type: string
+                example: nexusEdge
+              attribute_description:
+                type: string
+                example: Compute Availability Zone
+        configurable_parameters:
+          type: array
+          items:
+            type: object
+            properties:
+              parameter_name:
+                type: string
+                example: ssid
+              parameter_type:
+                type: string
+                example: string
+              parameter_description:
+                type: string
+                example: WiFi SSID
+        status:
+          type: string
+          example: active
+
+    PostSlic3TypeChunks:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 5da4d96f3947c07c434da2c5
+        slice_blueprint:
+          type: object
+          properties:
+            compute_chunk:
+              type: array
+              items:
+                type: object
+                properties:
+                  compute_id:
+                    type: string
+                    example: 601881a8d68f2807e733c634
+            network_chunk:
+              type: array
+              items:
+                type: object
+                properties:
+                  physical_network_id:
+                    type: string
+                    example: 601881a8d68f2807e733c634
+                  role:
+                    type: string
+                    example: data-network
+            radio_chunk:
+              type: array
+              items:
+                type: object
+                properties:
+                  ran_infra_id:
+                    type: string
+                    example: 601881a8d68f2807e733c634
+                  chunk_topology:
+                    $ref: "#/components/schemas/GetRadioChunkTopo"
+#        atomic_services:
+#          type: object
+#          properties:
+#            radio_service:
+#              type: object
+#              properties:
+#                name:
+#                  type: string
+#                  example: radioServiceName
+
+    GetSlic3Instances:
+      type: array
+      items:
+        $ref: "#/components/schemas/PostSlic3Instance"
+
+    Slic3InstanceInput:
+      type: object
+      properties:
+        user_id:
+          type: string
+          example: 5b63089158f568073093f70d
+        name:
+          type: string
+          example: slice_test
+        slic3_type_id:
+          type: string
+          example: 5b63089158f568073093f70d
+        configurable_parameters:
+          type: array
+          items:
+            type: object
+            properties:
+              parameter_name:
+                type: string
+                example: ssid
+              parameter_value:
+                type: string
+                example: MYSSID
+
+    PostSlic3Instance:
+      allOf:
+        - $ref: "#/components/schemas/PostSlic3"
+        - type: object
+          properties:
+            slic3_type_id:
+              type: string
+              example: 5da4d96f3947c07c434da2c5
+            configured_parameters:
+              type: object
+              properties:
+                ssid:
+                  type: string
+                  example: MYSSID
+            services:
+              type: object
+              properties:
+                radio_service:
+                  $ref: "#/components/schemas/PostRadioService"
+
+    GetNetworkServices:
+      type: array
+      items:
+        $ref: "#/components/schemas/PostNetworkService"
+
+    NetworkServiceInput:
+      type: object
+      properties:
+        name:
+          type: string
+          example: captive_portal
+        user_id:
+          type: string
+          example: 5b8cf41758f56870ed0d0c7f
+        network_service_data:
+          type: object
+          properties:
+            osm_descriptor_id:
+              type: string
+              example: 3b015075-7aac-4510-b2d8-f7fb416e6dd9
+
+    PostNetworkService:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 5b6308c258f568073093f703
+        name:
+          type: string
+          example: captive_portal
+        user_id:
+          type: string
+          example: 5b8cf41758f56870ed0d0c7f
+        network_service_data:
+          type: object
+          properties:
+            osm_descriptor_id:
+              type: string
+              example: 3b015075-7aac-4510-b2d8-f7fb416e6dd9
+        cpus:
+          type: object
+          properties:
+            required:
+              type: integer
+              example: 1
+        ram:
+          type: object
+          properties:
+            required:
+              type: integer
+              example: 1
+            units:
+              type: string
+              example: GB
+        storage:
+          type: object
+          properties:
+            required:
+              type: integer
+              example: 100
+            units:
+              type: string
+              example: GB
+
+    GetNetworkServiceInstances:
+      type: array
+      items:
+        $ref: "#/components/schemas/PostNetworkServiceInstance"
+
+    NetworkServiceInstanceInput:
+      type: object
+      properties:
+        name:
+          type: string
+          example: nova
+        user_id:
+          type: string
+          example: 5b63089158f568073093f70d
+        slic3_id:
+          type: string
+          example: 5b63089158f568073093f70d
+        network_service_id:
+          type: string
+          example: 5b63089158f568073093f70d
+        description:
+          type: string
+          example: Instance example
+        ports:
+          type: array
+          items:
+            type: integer
+            example: 80
+        trusted:
+          type: boolean
+          example: False
+        input_node_id:
+          type: string
+          example: ce5ccb70-2722-4693-a1f9-1793a3b01c7a
+        ns_placement_data:
+          type: object
+          properties:
+            vnf:
+              type: array
+              items:
+                type: object
+                properties:
+                  member-vnf-index:
+                    type: string
+                    example: 1
+                  vimAccountId:
+                    type: string
+                    example: 0e008f85-800e-49c5-9de7-15c3e530bb71
+
+    PostNetworkServiceInstance:
+      type: object
+      properties:
+        name:
+          type: string
+          example: nova
+        user_id:
+          type: string
+          example: 5b63089158f568073093f70d
+        slic3_id:
+          type: string
+          example: 5b63089158f568073093f70d
+        network_service_id:
+          type: string
+          example: 5b63089158f568073093f70d
+        osm_instance_id:
+          type: string
+          example: ef50b07b-8a12-4de2-b26f-4942dc000aec
+        description:
+          type: string
+          example: Instance example
+        ports:
+          type: array
+          items:
+            type: integer
+            example: 80
+        id:
+          type: string
+          example: 5b63089158f568073093f70d
+        monitoring_info:
+          type: object
+          properties:
+            VM_name:
+              type: string
+              example: VDU1_NS1
+            IP_address:
+              type: string
+              example: 10.0.0.25
+            Interface:
+              type: string
+              example: eth0
+        status:
+          type: string
+          example: deployed
+        trusted:
+          type: boolean
+          example: False
+
+    NetworkServiceInstanceScaleInput:
+      type: object
+      properties:
+        scale_type:
+          type: string
+          example: SCALE_OUT
+        scaling_group_desc:
+          type: string
+          example: manual_scale
+        member_vnf_index:
+          type: string
+          example: "1"
+
+    NetworkServiceInstanceReactionInput:
+      type: object
+      properties:
+        alert_name:
+          type: string
+          example: InstanceDown
+
+    ErrorMessage:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Error message
+
+  responses:
+    BadRequest:
+      description: The server can’t return a response due to an error on the client’s request
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorMessage"
+    NotFound:
+      description: The requested resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorMessage"
+    Conflict:
+      description: The server couldn’t process the request because there’s a conflict with the relevant resource
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorMessage"
+    UnprocessableEntity:
+      description: The server was unable to process the instructions contained in the request
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorMessage"
+    InternalServerError:
+      description: There was an error on the server and the request could not be completed
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorMessage"
+    NotImplemented:
+      description: The server does not support the functionality required to fulfill the request
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorMessage"
+    ServiceUnavailable:
+      description: The server is unavailable to handle this request right now
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorMessage"
+    GatewayTimeout:
+      description: The server, acting as a gateway, timed out waiting for another server to respond
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorMessage"
